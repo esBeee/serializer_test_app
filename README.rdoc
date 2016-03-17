@@ -1,0 +1,60 @@
+== README
+
+Ruby version: 2.1.2
+
+This rails app was created to isolate a problem with the :json_api adapter for the ActiveModelSerializers gem: the attributes key for the has_many associations aren't present.
+
+To see what the serializer delivers do
+
+* $ rake db:migrate
+
+* $ rake db:seed (creates an Account that has(_many) 2 Profiles)
+
+* $ rails console
+
+* > ActiveModel::SerializableResource.new(Account.first).as_json
+
+Following the above steps returns
+
+  {
+    :id=>1,
+    :something=>"this",
+    :profiles=>[
+      {
+        :id=>1,
+        :name=>"Mike Miller"
+      },
+      {
+        :id=>2,
+        :name=>"Mike Miller"
+      }
+    ]
+  }
+
+when no adapter is specified and
+
+  {
+    :data=>{
+      :id=>"1",
+      :type=>"accounts",
+      :attributes=>{
+        :something=>"this"
+      },
+      :relationships=>{
+        :profiles=>{
+          :data=>[
+            {
+              :id=>"1",
+              :type=>"profiles"
+            },
+            {
+              :id=>"2",
+              :type=>"profiles"
+            }
+          ]
+        }
+      }
+    }
+  }
+
+when :json_api is specified as adapter in the active_model_serializers.rb initializer file. Note that the :name attribute of the profiles isn't present (shouldn't it?).
